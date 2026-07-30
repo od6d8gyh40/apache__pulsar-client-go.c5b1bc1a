@@ -191,11 +191,11 @@ func (ls *lookupService) Lookup(topic string) (*LookupResult, error) {
 				topic, lr.BrokerServiceUrl, lr.BrokerServiceUrlTls, lr.ProxyThroughServiceUrl)
 
 			id := ls.rpcClient.NewRequestID()
-			res, err = ls.rpcClient.Request(lookupResult.LogicalAddr, lookupResult.LogicalAddr, id, pb.BaseCommand_LOOKUP,
+			res, err = ls.rpcClient.Request(lookupResult.LogicalAddr, lookupResult.PhysicalAddr, id, pb.BaseCommand_LOOKUP,
 				&pb.CommandLookupTopic{
 					RequestId:              &id,
 					Topic:                  &topic,
-					Authoritative:          proto.Bool(false),
+					Authoritative:          lr.Authoritative,
 					AdvertisedListenerName: proto.String(ls.listenerName),
 				})
 			if err != nil {
@@ -210,14 +210,14 @@ func (ls *lookupService) Lookup(topic string) (*LookupResult, error) {
 				topic, lr.GetBrokerServiceUrl(), lr.GetBrokerServiceUrlTls(), lr.GetProxyThroughServiceUrl())
 
 			brokerServiceURL := selectServiceURL(ls.tlsEnabled, lr.GetBrokerServiceUrl(), lr.GetBrokerServiceUrlTls())
-			return ls.GetBrokerAddress(brokerServiceURL, !lr.GetProxyThroughServiceUrl())
+			return ls.GetBrokerAddress(brokerServiceURL, lr.GetProxyThroughServiceUrl())
 		case pb.CommandLookupTopicResponse_Failed:
 			ls.log.WithFields(log.Fields{
 				"topic":   topic,
 				"error":   lr.GetError(),
 				"message": lr.GetMessage(),
 			}).Warn("Failed to lookup topic")
-			return nil, errors.New(lr.GetMessage())
+			return nil, errors.New(lr.GetError().String())
 		}
 	}
 
