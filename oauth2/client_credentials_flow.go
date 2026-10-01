@@ -204,14 +204,17 @@ func newClientCredentialsHTTPClient(options ClientCredentialsFlowOptions) (*http
 	}
 
 	if options.TrustCertsFilePath != "" {
-		rootCA, _ := os.ReadFile(options.TrustCertsFilePath)
+		rootCA, err := os.ReadFile(options.TrustCertsFilePath)
+		if err != nil {
+			return nil, err
+		}
 		transport.TLSClientConfig.RootCAs = x509.NewCertPool()
 		transport.TLSClientConfig.RootCAs.AppendCertsFromPEM(rootCA)
 	}
 
 	hasTLSCertFile := options.TLSCertFile != ""
 	hasTLSKeyFile := options.TLSKeyFile != ""
-	if hasTLSCertFile && !hasTLSKeyFile {
+	if hasTLSCertFile != hasTLSKeyFile {
 		return nil, errors.New("tlsCertFile and tlsKeyFile must be specified together")
 	}
 
@@ -220,12 +223,12 @@ func newClientCredentialsHTTPClient(options ClientCredentialsFlowOptions) (*http
 	}
 
 	if hasTLSCertFile {
-		if _, err := tls.LoadX509KeyPair(options.TLSKeyFile, options.TLSCertFile); err != nil {
+		if _, err := tls.LoadX509KeyPair(options.TLSCertFile, options.TLSKeyFile); err != nil {
 			return nil, err
 		}
 
 		transport.TLSClientConfig.GetClientCertificate = func(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
-			cert, err := tls.LoadX509KeyPair(options.TLSKeyFile, options.TLSCertFile)
+			cert, err := tls.LoadX509KeyPair(options.TLSCertFile, options.TLSKeyFile)
 			if err != nil {
 				return nil, err
 			}
