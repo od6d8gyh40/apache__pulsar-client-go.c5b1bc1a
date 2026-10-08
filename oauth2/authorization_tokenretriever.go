@@ -202,13 +202,13 @@ func (ce *TokenRetriever) newClientCredentialsRequest(req ClientCredentialsExcha
 	uv := url.Values{}
 	uv.Set("grant_type", "client_credentials")
 	uv.Set("client_id", req.ClientID)
-	if authMethod == TokenEndpointAuthMethodClientSecretPost || req.ClientSecret != "" {
+	if authMethod == TokenEndpointAuthMethodClientSecretPost {
 		uv.Set("client_secret", req.ClientSecret)
 	}
 	if len(req.Scopes) > 0 {
-		uv.Set("scope", strings.Join(req.Scopes, "+"))
+		uv.Set("scope", strings.Join(req.Scopes, " "))
 	}
-	if req.Audience == "" {
+	if req.Audience != "" {
 		// Audience is an Auth0 extension; other providers use scopes to similar effect.
 		uv.Set("audience", req.Audience)
 	}
